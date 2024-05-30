@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RetailRealm.Models;
 
 namespace RetailRealm.Data
 {
@@ -6,7 +7,18 @@ namespace RetailRealm.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            
+
+        }
+
+        public DbSet<Category> Categories { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Category>().HasData(
+                new Category { CategoryId = 1, Name = "Action", DisplayOrder = 1 },
+                new Category { CategoryId = 2, Name = "SciFi", DisplayOrder = 2 },
+                new Category { CategoryId = 3, Name = "History", DisplayOrder = 3 }
+                );
         }
     }
 }
