@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace RetailRealm.Migrations
+namespace RetailRealm.DataAccessLibrary.Migrations
 {
     /// <inheritdoc />
     public partial class Initialmigration : Migration

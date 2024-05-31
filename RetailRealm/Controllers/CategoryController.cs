@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RetailRealm.Data;
+using RetailRealm.DataAccessLibrary.Data;
 using RetailRealm.Models;
 
 namespace RetailRealm.Controllers

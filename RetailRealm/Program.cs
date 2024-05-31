@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RetailRealm.Data;
+using RetailRealm.DataAccessLibrary.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

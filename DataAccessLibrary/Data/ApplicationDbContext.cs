@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RetailRealm.Models;
 
-namespace RetailRealm.Data
+namespace RetailRealm.DataAccessLibrary.Data
 {
     public class ApplicationDbContext : DbContext
     {
