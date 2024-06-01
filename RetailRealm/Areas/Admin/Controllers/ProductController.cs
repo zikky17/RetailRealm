@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ModelsLibrary.Models;
+using ModelsLibrary.ViewModels;
 
 namespace RetailRealm.Areas.Admin.Controllers
 {
@@ -18,37 +19,47 @@ namespace RetailRealm.Areas.Admin.Controllers
         public IActionResult Index()
         {
             var allProducts = _unitOfWork.ProductRepository.GetAll().ToList();
-           
+
             return View(allProducts);
         }
 
         public IActionResult Create()
         {
 
-            IEnumerable<SelectListItem> CategoryList = _unitOfWork.CategoryRepository
+            ProductVM productVM = new()
+            {
+                CategoryList = _unitOfWork.CategoryRepository
+               .GetAll().Select(x => new SelectListItem
+               {
+                   Text = x.Name,
+                   Value = x.CategoryId.ToString()
+               }),
+                Product = new Product()
+            };
+            return View(productVM);
+        }
+
+        [HttpPost]
+        public IActionResult Create(ProductVM productVM)
+        {
+
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.ProductRepository.Add(productVM.Product);
+                _unitOfWork.Save();
+                TempData["success"] = "Product created successfully";
+                return RedirectToAction("Index", "Product");
+            }
+            else
+            {
+                productVM.CategoryList = _unitOfWork.CategoryRepository
                .GetAll().Select(x => new SelectListItem
                {
                    Text = x.Name,
                    Value = x.CategoryId.ToString()
                });
-
-            ViewBag.CategoryList = CategoryList;
-
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Create(Product obj)
-        {
-           
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.ProductRepository.Add(obj);
-                _unitOfWork.Save();
-                TempData["success"] = "Product created successfully";
-                return RedirectToAction("Index", "Product");
             }
-            return View();
+            return View(productVM);
         }
 
         public IActionResult Edit(int? id)

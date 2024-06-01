@@ -7,7 +7,7 @@ using RetailRealm.DataAccessLibrary.Data;
 
 #nullable disable
 
-namespace RetailRealm.DataAccessLibrary.Migrations
+namespace DataAccessLibrary.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
