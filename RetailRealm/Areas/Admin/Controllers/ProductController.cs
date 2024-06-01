@@ -1,5 +1,6 @@
 ﻿using DataAccessLibrary.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using ModelsLibrary.Models;
 
 namespace RetailRealm.Areas.Admin.Controllers
@@ -17,11 +18,22 @@ namespace RetailRealm.Areas.Admin.Controllers
         public IActionResult Index()
         {
             var allProducts = _unitOfWork.ProductRepository.GetAll().ToList();
+           
             return View(allProducts);
         }
 
         public IActionResult Create()
         {
+
+            IEnumerable<SelectListItem> CategoryList = _unitOfWork.CategoryRepository
+               .GetAll().Select(x => new SelectListItem
+               {
+                   Text = x.Name,
+                   Value = x.CategoryId.ToString()
+               });
+
+            ViewBag.CategoryList = CategoryList;
+
             return View();
         }
 
