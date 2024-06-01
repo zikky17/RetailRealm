@@ -7,16 +7,16 @@ namespace RetailRealm.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ICategoryRepository _categoryRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryController(ICategoryRepository dbContext)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _categoryRepo = dbContext;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            List<Category> objCategoryList = _categoryRepo.GetAll().ToList();
+            List<Category> objCategoryList = _unitOfWork.CategoryRepository.GetAll().ToList();
             return View(objCategoryList);
         }
 
@@ -34,8 +34,8 @@ namespace RetailRealm.Controllers
             }
             if (ModelState.IsValid)
             {
-                _categoryRepo.Add(obj);
-                _categoryRepo.Save();
+                _unitOfWork.CategoryRepository.Add(obj);
+                _unitOfWork.Save();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index", "Category");
             }
@@ -49,7 +49,7 @@ namespace RetailRealm.Controllers
                 return NotFound();
             }
 
-            Category categoryFromDb = _categoryRepo.GetOne(u => u.CategoryId == id);
+            Category categoryFromDb = _unitOfWork.CategoryRepository.GetOne(u => u.CategoryId == id);
             if (categoryFromDb == null)
             {
                 return NotFound();
@@ -63,8 +63,8 @@ namespace RetailRealm.Controllers
         {         
             if (ModelState.IsValid)
             {
-                _categoryRepo.Update(obj);
-                _categoryRepo.Save();
+                _unitOfWork.CategoryRepository.Update(obj);
+                _unitOfWork.Save();
                 TempData["success"] = "Category updated successfully";
                 return RedirectToAction("Index", "Category");
             }
@@ -78,7 +78,7 @@ namespace RetailRealm.Controllers
                 return NotFound();
             }
 
-            Category categoryFromDb = _categoryRepo.GetOne(u => u.CategoryId == id);
+            Category categoryFromDb = _unitOfWork.CategoryRepository.GetOne(u => u.CategoryId == id);
             if (categoryFromDb == null)
             {
                 return NotFound();
@@ -90,14 +90,14 @@ namespace RetailRealm.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category obj = _categoryRepo.GetOne(u => u.CategoryId == id);
+            Category obj = _unitOfWork.CategoryRepository.GetOne(u => u.CategoryId == id);
             if (obj == null)
             {
                 return NotFound();
             }
 
-            _categoryRepo.Remove(obj);
-            _categoryRepo.Save();
+            _unitOfWork.CategoryRepository.Remove(obj);
+            _unitOfWork.Save();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }

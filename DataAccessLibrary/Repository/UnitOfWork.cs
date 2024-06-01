@@ -1,6 +1,5 @@
 ﻿using DataAccessLibrary.Repository.IRepository;
 using RetailRealm.DataAccessLibrary.Data;
-using RetailRealm.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +8,22 @@ using System.Threading.Tasks;
 
 namespace DataAccessLibrary.Repository
 {
-    public class CategoryRepository : Repository<Category>, ICategoryRepository
+    public class UnitOfWork : IUnitOfWork
     {
-        private ApplicationDbContext _db;
 
-        public CategoryRepository(ApplicationDbContext db) :base(db)
+        private ApplicationDbContext _db;
+        public ICategoryRepository CategoryRepository { get; private set; }
+
+        public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
+            CategoryRepository = new CategoryRepository(_db);
         }
 
-        public void Update(Category category)
+     
+        public void Save()
         {
-            _db.Update(category);
+            _db.SaveChanges();
         }
     }
 }
