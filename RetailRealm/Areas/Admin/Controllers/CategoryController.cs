@@ -1,7 +1,6 @@
 ﻿using DataAccessLibrary.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
-using RetailRealm.DataAccessLibrary.Data;
-using RetailRealm.Models;
+using ModelsLibrary.Models;
 
 namespace RetailRealm.Areas.Admin.Controllers
 {

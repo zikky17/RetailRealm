@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace RetailRealm.Models
+namespace ModelsLibrary.Models
 {
     public class Category
     {

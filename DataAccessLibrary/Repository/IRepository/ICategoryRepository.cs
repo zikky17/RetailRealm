@@ -1,9 +1,4 @@
-﻿using RetailRealm.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ModelsLibrary.Models;
 
 namespace DataAccessLibrary.Repository.IRepository
 {
