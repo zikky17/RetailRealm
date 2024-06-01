@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using RetailRealm.DataAccessLibrary.Data;
 using RetailRealm.Models;
 
-namespace RetailRealm.Controllers
+namespace RetailRealm.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -60,7 +61,7 @@ namespace RetailRealm.Controllers
         [HttpPost]
 
         public IActionResult Edit(Category obj)
-        {         
+        {
             if (ModelState.IsValid)
             {
                 _unitOfWork.CategoryRepository.Update(obj);
