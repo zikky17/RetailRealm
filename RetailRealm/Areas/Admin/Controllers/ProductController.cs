@@ -5,19 +5,19 @@ using ModelsLibrary.Models;
 namespace RetailRealm.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryController : Controller
+    public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryController(IUnitOfWork unitOfWork)
+        public ProductController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            List<Category> objCategoryList = _unitOfWork.CategoryRepository.GetAll().ToList();
-            return View(objCategoryList);
+            var allProducts = _unitOfWork.ProductRepository.GetAll().ToList();
+            return View(allProducts);
         }
 
         public IActionResult Create()
@@ -26,18 +26,15 @@ namespace RetailRealm.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Category obj)
+        public IActionResult Create(Product obj)
         {
-            if (obj.Name == obj.DisplayOrder.ToString())
-            {
-                ModelState.AddModelError("Name", "The DisplayOrder cannot match the Name.");
-            }
+           
             if (ModelState.IsValid)
             {
-                _unitOfWork.CategoryRepository.Add(obj);
+                _unitOfWork.ProductRepository.Add(obj);
                 _unitOfWork.Save();
-                TempData["success"] = "Category created successfully";
-                return RedirectToAction("Index", "Category");
+                TempData["success"] = "Product created successfully";
+                return RedirectToAction("Index", "Product");
             }
             return View();
         }
@@ -49,24 +46,24 @@ namespace RetailRealm.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            Category categoryFromDb = _unitOfWork.CategoryRepository.GetOne(u => u.CategoryId == id);
-            if (categoryFromDb == null)
+            Product product = _unitOfWork.ProductRepository.GetOne(u => u.Id == id);
+            if (product == null)
             {
                 return NotFound();
             }
 
-            return View(categoryFromDb);
+            return View(product);
         }
         [HttpPost]
 
-        public IActionResult Edit(Category obj)
+        public IActionResult Edit(Product obj)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.CategoryRepository.Update(obj);
+                _unitOfWork.ProductRepository.Update(obj);
                 _unitOfWork.Save();
-                TempData["success"] = "Category updated successfully";
-                return RedirectToAction("Index", "Category");
+                TempData["success"] = "Product updated successfully";
+                return RedirectToAction("Index", "Product");
             }
             return View();
         }
@@ -78,27 +75,27 @@ namespace RetailRealm.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            Category categoryFromDb = _unitOfWork.CategoryRepository.GetOne(u => u.CategoryId == id);
-            if (categoryFromDb == null)
+            Product product = _unitOfWork.ProductRepository.GetOne(u => u.Id == id);
+            if (product == null)
             {
                 return NotFound();
             }
 
-            return View(categoryFromDb);
+            return View(product);
         }
 
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category obj = _unitOfWork.CategoryRepository.GetOne(u => u.CategoryId == id);
+            Product obj = _unitOfWork.ProductRepository.GetOne(u => u.Id == id);
             if (obj == null)
             {
                 return NotFound();
             }
 
-            _unitOfWork.CategoryRepository.Remove(obj);
+            _unitOfWork.ProductRepository.Remove(obj);
             _unitOfWork.Save();
-            TempData["success"] = "Category deleted successfully";
+            TempData["success"] = "Product deleted successfully";
             return RedirectToAction("Index");
         }
     }

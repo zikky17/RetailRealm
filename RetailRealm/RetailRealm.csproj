@@ -22,8 +22,4 @@
     <ProjectReference Include="..\UtilitiesLibrary\UtilitiesLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
