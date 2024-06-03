@@ -19,7 +19,7 @@
                 </a>
             </div>
         </div>
-        <table class="table table-bordered table-striped">
+        <table id="tblData" class="table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
                     <th>
@@ -42,38 +42,32 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var obj in Model)
-                {
-                    <tr>
-                        <td>
-                            @obj.Title
-                        </td>
-                        <td>
-                            @obj.ISBN
-                        </td>
-                        <td>
-                            @obj.ListPrice
-                        </td>
-                        <td>
-                            @obj.Author
-                        </td>
-                        <td>
-                            @obj.Category.Name
-                        </td>
-                        <td>
-                            <div class="w-75 btn-group" role="group">
-                                <a asp-controller="Product" asp-route-id="@obj.Id" asp-action="Upsert" class="btn btn-primary mx-2">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                                <a asp-controller="Product" asp-route-id="@obj.Id" asp-action="Delete" class="btn btn-danger mx-2">
-                                    <i class="bi bi-trash-fill"></i> Delete
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
         </table>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        function () {
+            loadDataTable();
+        });
+
+
+
+        function loadDataTable() {
+            dataTable = $('#tblData').dataTable({
+                "ajax": { url: '/admin/product/getall' },
+                "columns": [
+                    { data: 'title', "width": "15%" },
+                    { data: 'isbn', "width": "15%" },
+                    { data: 'listPrice', "width": "15%" },
+                    { data: 'author', "width": "15%" },
+                    { data: 'category.name', "width": "15%" }
+                ]
+            });
+        }
+    </script>
+
+    <script src="~/js/product.js"></script>
+}
