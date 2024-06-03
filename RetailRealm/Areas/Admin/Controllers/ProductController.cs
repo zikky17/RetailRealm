@@ -20,7 +20,7 @@ namespace RetailRealm.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            var allProducts = _unitOfWork.ProductRepository.GetAll().ToList();
+            var allProducts = _unitOfWork.ProductRepository.GetAll("Category").ToList();
 
             return View(allProducts);
         }
@@ -57,12 +57,22 @@ namespace RetailRealm.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 string path = _webHostEnvironment.WebRootPath;
-                if(file != null)
+                if (file != null)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                     string productPath = Path.Combine(path, @"images\product");
 
-                    using(var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(path, productVM.Product.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
                         file.CopyTo(fileStream);
                     }
@@ -70,7 +80,15 @@ namespace RetailRealm.Areas.Admin.Controllers
                     productVM.Product.ImageUrl = @"\images\product\" + fileName;
                 }
 
-                _unitOfWork.ProductRepository.Add(productVM.Product);
+                if (productVM.Product.Id == 0)
+                {
+                    _unitOfWork.ProductRepository.Add(productVM.Product);
+                }
+                else
+                {
+                    _unitOfWork.ProductRepository.Update(productVM.Product);
+                }
+
                 _unitOfWork.Save();
                 TempData["success"] = "Product created successfully";
                 return RedirectToAction("Index", "Product");
