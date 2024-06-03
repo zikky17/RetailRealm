@@ -135,5 +135,18 @@ namespace RetailRealm.Areas.Admin.Controllers
             TempData["success"] = "Product deleted successfully";
             return RedirectToAction("Index");
         }
+
+
+        #region API CALLS
+
+
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var allProducts = _unitOfWork.ProductRepository.GetAll("Category").ToList();
+            return Json( new { data = allProducts });
+        }
+
+        #endregion
     }
 }
