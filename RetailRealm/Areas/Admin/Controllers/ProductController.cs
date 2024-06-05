@@ -1,13 +1,16 @@
 ﻿using DataAccessLibrary.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ModelsLibrary.Models;
 using ModelsLibrary.ViewModels;
 using System.IO;
+using UtilitiesLibrary;
 
 namespace RetailRealm.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = StaticDetails.Role_Admin)]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
