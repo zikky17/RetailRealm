@@ -32,6 +32,11 @@
                         <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                     </div>
                     <div class="form-floating mb-3 col-md-6">
+                        <input asp-for="Input.Name" class="form-control" placeholder="Street Address" />
+                        <label asp-for="Input.Name" class="ms-2 text-muted">Full Name</label>
+                        <span asp-validation-for="Input.Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3 col-md-6">
                         <input asp-for="Input.StreetAddress" class="form-control" placeholder="Street Address" />
                         <label asp-for="Input.StreetAddress" class="ms-2 text-muted">Street Address</label>
                         <span asp-validation-for="Input.StreetAddress" class="text-danger"></span>
