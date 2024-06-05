@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLibrary.Repository.IRepository
 {
-    public interface ICompanyRepository
+    public interface ICompanyRepository : IRepository<Company>
     {
         void Update(Company company);
     }
