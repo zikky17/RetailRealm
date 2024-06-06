@@ -39,6 +39,43 @@ namespace RetailRealm.Areas.Customer.Controllers
             return View(ShoppingCartVM);
         }
 
+        public IActionResult Plus(int cartId)
+        {
+            var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ShoppingCartId == cartId);
+            cartFromDb.Count += 1;
+            _unitOfWork.ShoppingCartRepository.Update(cartFromDb);
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Minus(int cartId)
+        {
+            var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ShoppingCartId == cartId);
+            if (cartFromDb.Count <= 1)
+            {
+                _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
+            }
+            else
+            {
+                cartFromDb.Count -= 1;
+                _unitOfWork.ShoppingCartRepository.Update(cartFromDb);
+            }
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Remove(int cartId)
+        {
+            var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ShoppingCartId == cartId);
+            _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+
+
         private double GetPriceBasedOnQuantity(ShoppingCart cart)
         {
             if (cart.Count <= 50)
