@@ -25,16 +25,20 @@ namespace DataAccessLibrary.Repository
 
         public void Add(T entity)
         {
-           dbSet.Add(entity);
+            dbSet.Add(entity);
         }
 
-        public IEnumerable<T> GetAll(string? includeProperties = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
-            if(!string.IsNullOrEmpty(includeProperties))
+            if (filter != null)
             {
-                foreach(var prop in includeProperties
-                    .Split(new char[] { ',' },StringSplitOptions.RemoveEmptyEntries))
+                query = query.Where(filter);
+            }
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var prop in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(prop);
                 }

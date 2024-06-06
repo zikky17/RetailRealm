@@ -24,7 +24,7 @@ namespace RetailRealm.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            var allProducts = _unitOfWork.ProductRepository.GetAll("Category").ToList();
+            var allProducts = _unitOfWork.ProductRepository.GetAll(null, "Category").ToList();
 
             return View(allProducts);
         }
@@ -116,7 +116,7 @@ namespace RetailRealm.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var allProducts = _unitOfWork.ProductRepository.GetAll("Category").ToList();
+            var allProducts = _unitOfWork.ProductRepository.GetAll(null, "Category").ToList();
             return Json( new { data = allProducts });
         }
 
