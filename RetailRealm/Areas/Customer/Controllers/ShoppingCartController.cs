@@ -25,7 +25,8 @@ namespace RetailRealm.Areas.Customer.Controllers
             var userIdentity = (ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ShoppingCartVM = new() {
+            ShoppingCartVM = new()
+            {
                 ShoppingCartList = _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId,
                 includeProperties: "Product")
             };
@@ -37,6 +38,11 @@ namespace RetailRealm.Areas.Customer.Controllers
             }
 
             return View(ShoppingCartVM);
+        }
+
+        public IActionResult Summary()
+        {
+            return View();
         }
 
         public IActionResult Plus(int cartId)
