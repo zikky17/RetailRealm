@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ModelsLibrary.Models;
 using ModelsLibrary.ViewModels;
+using Stripe.Checkout;
 using System.Security.Claims;
 using UtilitiesLibrary;
+using static System.Net.WebRequestMethods;
 
 namespace RetailRealm.Areas.Customer.Controllers
 {
@@ -122,12 +124,45 @@ namespace RetailRealm.Areas.Customer.Controllers
 
             if (ShoppingCartVM.OrderHeader.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
             {
-              // STRIPE
-            }
+                var domain = "https://localhost:7009/";
 
+                var options = new Stripe.Checkout.SessionCreateOptions
+                {
+                    SuccessUrl = domain + $"customer/ShoppingCart/OrderConfirmation?{ShoppingCartVM.OrderHeader.OrderId}",
+                    CancelUrl = domain + "customer/ShoppingCart/Index",
+                    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>(),
+                    Mode = "payment",
+                };
+
+                foreach (var item in ShoppingCartVM.ShoppingCartList)
+                {
+                    var sessionLineItem = new SessionLineItemOptions()
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions()
+                        {
+                            UnitAmount = (long)(item.Price * 100),
+                            Currency = "sek",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = item.Product.Title
+                            }
+                        },
+                        Quantity = item.Count
+
+                    };
+                    options.LineItems.Add(sessionLineItem);
+
+                    var service = new Stripe.Checkout.SessionService();
+                    Session session = service.Create(options);
+                    _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.OrderId, session.Id, session.PaymentIntentId);
+                    _unitOfWork.Save();
+                    Response.Headers.Add("Location", session.Url);
+                    return new StatusCodeResult(303);
+                }
+
+            }
             return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.OrderId });
         }
-
         public IActionResult OrderConfirmation(int id)
         {
             return View(id);
