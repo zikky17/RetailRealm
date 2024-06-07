@@ -126,19 +126,19 @@ namespace RetailRealm.Areas.Customer.Controllers
             {
                 var domain = "https://localhost:7009/";
 
-                var options = new Stripe.Checkout.SessionCreateOptions
+                var options = new SessionCreateOptions
                 {
-                    SuccessUrl = domain + $"customer/ShoppingCart/OrderConfirmation?{ShoppingCartVM.OrderHeader.OrderId}",
+                    SuccessUrl = domain + $"customer/ShoppingCart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.OrderId}",
                     CancelUrl = domain + "customer/ShoppingCart/Index",
-                    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>(),
+                    LineItems = new List<SessionLineItemOptions>(),
                     Mode = "payment",
                 };
 
                 foreach (var item in ShoppingCartVM.ShoppingCartList)
                 {
-                    var sessionLineItem = new SessionLineItemOptions()
+                    var sessionLineItem = new SessionLineItemOptions
                     {
-                        PriceData = new SessionLineItemPriceDataOptions()
+                        PriceData = new SessionLineItemPriceDataOptions
                         {
                             UnitAmount = (long)(item.Price * 100),
                             Currency = "sek",
@@ -151,20 +151,41 @@ namespace RetailRealm.Areas.Customer.Controllers
 
                     };
                     options.LineItems.Add(sessionLineItem);
-
-                    var service = new Stripe.Checkout.SessionService();
-                    Session session = service.Create(options);
-                    _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.OrderId, session.Id, session.PaymentIntentId);
-                    _unitOfWork.Save();
-                    Response.Headers.Add("Location", session.Url);
-                    return new StatusCodeResult(303);
                 }
+
+                var service = new SessionService();
+                Session session = service.Create(options);
+                _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.OrderId, session.Id, session.PaymentIntentId);
+                _unitOfWork.Save();
+                Response.Headers.Add("Location", session.Url);
+                return new StatusCodeResult(303);
 
             }
             return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.OrderId });
         }
         public IActionResult OrderConfirmation(int id)
         {
+
+            OrderHeader orderheader = _unitOfWork.OrderHeaderRepository.GetOne(u => u.OrderId == id, includeProperties: "ApplicationUser");
+            if(orderheader.PaymentStatus != StaticDetails.PaymentStatusDelayedPayment)
+            {
+                var service = new SessionService();
+                Session session = service.Get(orderheader.SessionId);
+
+                if(session.PaymentStatus.ToLower() == "paid")
+                {
+                    _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(id, session.Id, session.PaymentIntentId);
+                    _unitOfWork.OrderHeaderRepository.UpdateStatus(id, StaticDetails.StatusApproved, StaticDetails.PaymentStatusApproved);
+                    _unitOfWork.Save();
+                }
+            }
+
+            List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCartRepository
+                .GetAll(u => u.ApplicationUserId == orderheader.ApplicationUserId).ToList();
+
+            _unitOfWork.ShoppingCartRepository.RemoveRange(shoppingCarts);
+            _unitOfWork.Save();
+
             return View(id);
         }
 
