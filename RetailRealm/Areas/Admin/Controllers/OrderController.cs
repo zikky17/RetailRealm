@@ -27,7 +27,7 @@ namespace RetailRealm.Areas.Admin.Controllers
         {
             OrderVM orderVM = new()
             {
-                OrderHeader = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == orderId, includeProperties: "ApplicationUser"),
+                OrderHeader = _unitOfWork.OrderHeaderRepository.GetOne(u => u.OrderId == orderId, includeProperties: "ApplicationUser"),
                 OrderDetail = _unitOfWork.OrderDetailRepository.GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product")
             };
             return View(orderVM);
