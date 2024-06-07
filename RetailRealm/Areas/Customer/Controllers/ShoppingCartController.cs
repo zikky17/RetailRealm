@@ -120,8 +120,17 @@ namespace RetailRealm.Areas.Customer.Controllers
                 _unitOfWork.Save();
             }
 
+            if (ShoppingCartVM.OrderHeader.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
+            {
+              // STRIPE
+            }
 
-            return View(ShoppingCartVM);
+            return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.OrderId });
+        }
+
+        public IActionResult OrderConfirmation(int id)
+        {
+            return View(id);
         }
 
         public IActionResult Plus(int cartId)
