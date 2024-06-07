@@ -1,4 +1,5 @@
-﻿var dataTable;
+﻿
+var dataTable;
 
 
 $(document).ready(function () {

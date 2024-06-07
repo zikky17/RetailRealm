@@ -1,8 +1,10 @@
 using DataAccessLibrary.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ModelsLibrary.Models;
 using RetailRealm.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace RetailRealm.Areas.Customer.Controllers
 {
@@ -26,9 +28,42 @@ namespace RetailRealm.Areas.Customer.Controllers
 
         public IActionResult Details(int id)
         {
-            Product product = _unitOfWork.ProductRepository.GetOne(u => u.Id == id, includeProperties: "Category");
-            return View(product);
+            ShoppingCart cart = new()
+            {
+                Product = _unitOfWork.ProductRepository.GetOne(u => u.Id == id, includeProperties: "Category"),
+                Count = 1,
+                ProductId = id
+            };
+            return View(cart);
         }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult Details(ShoppingCart cart)
+        {
+            var userIdentity = (ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            cart.ApplicationUserId = userId;
+
+            var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ApplicationUserId == userId
+            && u.ProductId == cart.ProductId);
+
+            if (cartFromDb != null)
+            {
+                cartFromDb.Count += cart.Count;
+                _unitOfWork.ShoppingCartRepository.Update(cartFromDb);
+            }
+            else
+            {
+                _unitOfWork.ShoppingCartRepository.Add(cart);
+            }
+            TempData["success"] = "Cart updated successfully";
+
+            _unitOfWork.Save();
+
+            return RedirectToAction("Index");
+        }
+
 
         public IActionResult Privacy()
         {
