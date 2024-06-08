@@ -41,7 +41,7 @@ function loadDataTable(status) {
             { data: 'orderStatus', "width": "10%" },
             { data: 'orderTotal', "width": "10%" },
             {
-                data: 'id',
+                data: 'orderId',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
                     <a href="/admin/order/details?orderId=${data}" class="btn btn-primary mx-2"><i class="bi bi-pencil-square"></i></a>                    
