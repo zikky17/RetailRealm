@@ -40,6 +40,7 @@ namespace RetailRealm.Areas.Customer.Controllers
             {
                 cart.Price = GetPriceBasedOnQuantity(cart);
                 ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+                ViewData["cartCount"] = cart.Count;
             }
 
             return View(ShoppingCartVM);
@@ -167,12 +168,12 @@ namespace RetailRealm.Areas.Customer.Controllers
         {
 
             OrderHeader orderheader = _unitOfWork.OrderHeaderRepository.GetOne(u => u.OrderId == id, includeProperties: "ApplicationUser");
-            if(orderheader.PaymentStatus != StaticDetails.PaymentStatusDelayedPayment)
+            if (orderheader.PaymentStatus != StaticDetails.PaymentStatusDelayedPayment)
             {
                 var service = new SessionService();
                 Session session = service.Get(orderheader.SessionId);
 
-                if(session.PaymentStatus.ToLower() == "paid")
+                if (session.PaymentStatus.ToLower() == "paid")
                 {
                     _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(id, session.Id, session.PaymentIntentId);
                     _unitOfWork.OrderHeaderRepository.UpdateStatus(id, StaticDetails.StatusApproved, StaticDetails.PaymentStatusApproved);

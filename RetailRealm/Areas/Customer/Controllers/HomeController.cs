@@ -58,7 +58,7 @@ namespace RetailRealm.Areas.Customer.Controllers
                 _unitOfWork.ShoppingCartRepository.Add(cart);
             }
             TempData["success"] = "Cart updated successfully";
-
+          
             _unitOfWork.Save();
 
             return RedirectToAction("Index");
