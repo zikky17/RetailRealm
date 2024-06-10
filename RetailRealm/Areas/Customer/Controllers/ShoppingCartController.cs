@@ -40,7 +40,6 @@ namespace RetailRealm.Areas.Customer.Controllers
             {
                 cart.Price = GetPriceBasedOnQuantity(cart);
                 ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
-                ViewData["cartCount"] = cart.Count;
             }
 
             return View(ShoppingCartVM);
@@ -204,6 +203,7 @@ namespace RetailRealm.Areas.Customer.Controllers
             var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ShoppingCartId == cartId);
             if (cartFromDb.Count <= 1)
             {
+                HttpContext.Session.SetInt32(StaticDetails.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
                 _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
             }
             else
@@ -218,6 +218,7 @@ namespace RetailRealm.Areas.Customer.Controllers
         public IActionResult Remove(int cartId)
         {
             var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ShoppingCartId == cartId);
+            HttpContext.Session.SetInt32(StaticDetails.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
             _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));

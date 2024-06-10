@@ -1,10 +1,12 @@
 using DataAccessLibrary.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ModelsLibrary.Models;
 using RetailRealm.Models;
 using System.Diagnostics;
 using System.Security.Claims;
+using UtilitiesLibrary;
 
 namespace RetailRealm.Areas.Customer.Controllers
 {
@@ -21,7 +23,7 @@ namespace RetailRealm.Areas.Customer.Controllers
         }
 
         public IActionResult Index()
-        {
+        {        
             IEnumerable<Product> productList = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category");
             return View(productList);
         }
@@ -52,15 +54,18 @@ namespace RetailRealm.Areas.Customer.Controllers
             {
                 cartFromDb.Count += cart.Count;
                 _unitOfWork.ShoppingCartRepository.Update(cartFromDb);
+                _unitOfWork.Save();
+               
             }
             else
             {
                 _unitOfWork.ShoppingCartRepository.Add(cart);
+                _unitOfWork.Save();
+                HttpContext.Session.SetInt32(StaticDetails.SessionCart,
+                    _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId).Count());
             }
             TempData["success"] = "Cart updated successfully";
           
-            _unitOfWork.Save();
-
             return RedirectToAction("Index");
         }
 
