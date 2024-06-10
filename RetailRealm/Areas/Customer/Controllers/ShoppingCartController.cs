@@ -124,7 +124,7 @@ namespace RetailRealm.Areas.Customer.Controllers
 
             if (ShoppingCartVM.OrderHeader.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
             {
-                var domain = "https://localhost:7009/";
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
 
                 var options = new SessionCreateOptions
                 {

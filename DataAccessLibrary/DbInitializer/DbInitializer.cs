@@ -48,20 +48,23 @@ namespace DataAccessLibrary.DbInitializer
                 _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Admin)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Employee)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Company)).GetAwaiter().GetResult();
+
+                _userManager.CreateAsync(new ApplicationUser
+                {
+                    UserName = "adminhailey@live.se",
+                    Email = "adminhailey@live.se",
+                    Name = "Hailey Ivering",
+                    PhoneNumber = "1122334455",
+                    StreetAddress = "Hagebyslingan 2B",
+                    State = "Huddinge",
+                    PostalCode = "14169",
+                    City = "Stockholm"
+                }, "Admin123!").GetAwaiter().GetResult();
+
+                ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "adminhailey@live.se");
+                _userManager.AddToRoleAsync(user, StaticDetails.Role_Admin).GetAwaiter().GetResult();
             }
-
-            _userManager.CreateAsync(new ApplicationUser
-            {
-                UserName = "adminhailey@live.se",
-                Email = "adminhailey@live.se",
-                Name = "Hailey Ivering",
-                PhoneNumber = "1122334455",
-                StreetAddress = "Hagebyslingan 2B",
-                State = "Huddinge",
-                PostalCode = "14169",
-                City = "Stockholm"
-            }, "Admin123!").GetAwaiter().GetResult();
-
+            return;
         }
     }
 }

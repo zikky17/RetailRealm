@@ -140,7 +140,7 @@ namespace RetailRealm.Areas.Admin.Controllers
             OrderVM.OrderDetail = _unitOfWork.OrderDetailRepository
                .GetAll(u => u.OrderHeaderId == OrderVM.OrderHeader.OrderId, includeProperties: "Product");
 
-            var domain = "https://localhost:7009/";
+            var domain = Request.Scheme + "://" + Request.Host.Value + "/";
 
             var options = new SessionCreateOptions
             {

@@ -47,6 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="appsettings.Production.json" />
     <_ContentIncludedByDefault Remove="Areas\Admin\Views\Order\PaymentConfirmation.cshtml" />
   </ItemGroup>
 
