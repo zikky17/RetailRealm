@@ -110,7 +110,7 @@ namespace RetailRealm.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
 
 
-            public string? Role {  get; set; }
+            public string? Role { get; set; }
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList { get; set; }
 
@@ -130,13 +130,7 @@ namespace RetailRealm.Areas.Identity.Pages.Account
         public async Task OnGetAsync(string returnUrl = null)
         {
 
-            if (!_roleManager.RoleExistsAsync(StaticDetails.Role_Customer).GetAwaiter().GetResult())
-            {
-                _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Customer)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Admin)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Employee)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Company)).GetAwaiter().GetResult();
-            }
+          
 
             Input = new()
             {
@@ -174,7 +168,7 @@ namespace RetailRealm.Areas.Identity.Pages.Account
                 user.State = Input.State;
                 user.PhoneNumber = Input.PhoneNumber;
 
-                if(Input.Role == StaticDetails.Role_Company)
+                if (Input.Role == StaticDetails.Role_Company)
                 {
                     user.CompanyId = (int)Input.CompanyId;
                 }
@@ -183,9 +177,10 @@ namespace RetailRealm.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, StaticDetails.Role_Customer);
                     _logger.LogInformation("User created a new account with password.");
 
-                    if(!string.IsNullOrEmpty(Input.Role))
+                    if (!string.IsNullOrEmpty(Input.Role))
                     {
                         await _userManager.AddToRoleAsync(user, Input.Role);
                     }
@@ -212,7 +207,14 @@ namespace RetailRealm.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        if (User.IsInRole(StaticDetails.Role_Admin))
+                        {
+                            TempData["success"] = "New User Created Successfully";
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
                         return LocalRedirect(returnUrl);
                     }
                 }

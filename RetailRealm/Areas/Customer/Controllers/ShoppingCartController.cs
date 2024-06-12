@@ -124,7 +124,7 @@ namespace RetailRealm.Areas.Customer.Controllers
 
             if (ShoppingCartVM.OrderHeader.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
             {
-                var domain = "https://localhost:7009/";
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
 
                 var options = new SessionCreateOptions
                 {
@@ -167,17 +167,18 @@ namespace RetailRealm.Areas.Customer.Controllers
         {
 
             OrderHeader orderheader = _unitOfWork.OrderHeaderRepository.GetOne(u => u.OrderId == id, includeProperties: "ApplicationUser");
-            if(orderheader.PaymentStatus != StaticDetails.PaymentStatusDelayedPayment)
+            if (orderheader.PaymentStatus != StaticDetails.PaymentStatusDelayedPayment)
             {
                 var service = new SessionService();
                 Session session = service.Get(orderheader.SessionId);
 
-                if(session.PaymentStatus.ToLower() == "paid")
+                if (session.PaymentStatus.ToLower() == "paid")
                 {
                     _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(id, session.Id, session.PaymentIntentId);
                     _unitOfWork.OrderHeaderRepository.UpdateStatus(id, StaticDetails.StatusApproved, StaticDetails.PaymentStatusApproved);
                     _unitOfWork.Save();
                 }
+                HttpContext.Session.Clear();
             }
 
             List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCartRepository
@@ -203,6 +204,7 @@ namespace RetailRealm.Areas.Customer.Controllers
             var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ShoppingCartId == cartId);
             if (cartFromDb.Count <= 1)
             {
+                HttpContext.Session.SetInt32(StaticDetails.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
                 _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
             }
             else
@@ -217,6 +219,7 @@ namespace RetailRealm.Areas.Customer.Controllers
         public IActionResult Remove(int cartId)
         {
             var cartFromDb = _unitOfWork.ShoppingCartRepository.GetOne(u => u.ShoppingCartId == cartId);
+            HttpContext.Session.SetInt32(StaticDetails.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
             _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
