@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RetailRealm.DataAccessLibrary.Data;
 
@@ -11,9 +12,11 @@ using RetailRealm.DataAccessLibrary.Data;
 namespace DataAccessLibrary.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240612103451_Removed img url")]
+    partial class Removedimgurl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -555,28 +558,6 @@ namespace DataAccessLibrary.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ModelsLibrary.Models.ProductImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductImages");
-                });
-
             modelBuilder.Entity("ModelsLibrary.Models.ShoppingCart", b =>
                 {
                     b.Property<int>("ShoppingCartId")
@@ -724,17 +705,6 @@ namespace DataAccessLibrary.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("ModelsLibrary.Models.ProductImage", b =>
-                {
-                    b.HasOne("ModelsLibrary.Models.Product", "Product")
-                        .WithMany("ProductImages")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("ModelsLibrary.Models.ShoppingCart", b =>
                 {
                     b.HasOne("ModelsLibrary.Models.ApplicationUser", "ApplicationUser")
@@ -761,11 +731,6 @@ namespace DataAccessLibrary.Migrations
                         .HasForeignKey("CompanyId");
 
                     b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("ModelsLibrary.Models.Product", b =>
-                {
-                    b.Navigation("ProductImages");
                 });
 #pragma warning restore 612, 618
         }
