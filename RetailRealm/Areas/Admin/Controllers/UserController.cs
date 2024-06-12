@@ -130,7 +130,7 @@ namespace RetailRealm.Areas.Admin.Controllers
 
                 _userManager.RemoveFromRoleAsync(applicationUser, oldRole).GetAwaiter().GetResult();
                 _userManager.AddToRoleAsync(applicationUser, user.ApplicationUser.Role).GetAwaiter().GetResult();
-
+                TempData["success"] = "User updated successfully";
 
             }
           
