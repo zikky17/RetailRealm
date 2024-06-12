@@ -36,7 +36,7 @@ namespace DataAccessLibrary.Repository
                 objFromDb.ProductImages = product.ProductImages;
             }
 
-            _db.Products.Update(product);
+            _db.Products.Update(objFromDb);
         }
     }
 }

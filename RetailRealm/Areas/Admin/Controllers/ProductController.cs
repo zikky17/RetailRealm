@@ -47,8 +47,9 @@ namespace RetailRealm.Areas.Admin.Controllers
             {
                 return View(productVM);
             }
+            else
             {
-                productVM.Product = _unitOfWork.ProductRepository.GetOne(x => x.Id == id);
+                productVM.Product = _unitOfWork.ProductRepository.GetOne(x => x.Id == id, includeProperties: "ProductImages");
                 return View(productVM);
             }
 
@@ -150,13 +151,18 @@ namespace RetailRealm.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Error while deleting" });
             }
 
-            //var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, 
-            //    productToDelete.ImageUrl.TrimStart('\\'));
+            string productPath = @"images\products\product-" + id;
+            string finalPath = Path.Combine(_webHostEnvironment.WebRootPath, productPath);
 
-            //if (System.IO.File.Exists(oldImagePath))
-            //{
-            //    System.IO.File.Delete(oldImagePath);
-            //}
+            if (!Directory.Exists(finalPath))
+            {
+                string[] filePaths = Directory.GetFiles(finalPath);
+                foreach (string filePath in filePaths)
+                {
+                    System.IO.File.Delete(filePath);    
+                }
+                Directory.Delete(finalPath);
+            }
 
             _unitOfWork.ProductRepository.Remove(productToDelete);
             _unitOfWork.Save();
@@ -164,6 +170,34 @@ namespace RetailRealm.Areas.Admin.Controllers
 
             return Json(new { success = true, message = "Delete Successful" });
         }
+
+        public IActionResult DeleteImage(int imageId)
+        {
+            var imageToBeDeleted = _unitOfWork.ProductImageRepository.GetOne(u => u.Id == imageId);
+            var productId = imageToBeDeleted.ProductId;
+            if (imageToBeDeleted != null)
+            {
+                if(!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
+                {
+                    var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath,
+                        imageToBeDeleted.ImageUrl.TrimStart('\\'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                _unitOfWork.ProductImageRepository.Remove(imageToBeDeleted);
+                _unitOfWork.Save();
+
+                TempData["success"] = "Deleted Successfully!";
+            }
+
+           return RedirectToAction(nameof(Upsert), new { id = productId });
+
+        }
+
 
         #endregion
     }
