@@ -1,5 +1,6 @@
 ﻿using DataAccessLibrary.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +17,14 @@ namespace RetailRealm.Areas.Admin.Controllers
     public class UserController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ApplicationDbContext _db;
 
-        public UserController(IUnitOfWork unitOfWork, ApplicationDbContext context)
+        public UserController(IUnitOfWork unitOfWork, ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _db = context;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -77,8 +80,65 @@ namespace RetailRealm.Areas.Admin.Controllers
 
             _db.SaveChanges();
 
-            return Json(new { success = true, message = "Delete Successful" });
+            return Json(new { success = true, message = "Operation Successful" });
         }
+
+
+        public IActionResult RoleManagement(string id)
+        {
+            string roleId = _db.UserRoles.FirstOrDefault(u => u.UserId == id).RoleId;
+
+            UserVM userVM = new UserVM()
+            {
+                ApplicationUser = _db.ApplicationUsers.Include(u => u.Company).FirstOrDefault(u => u.Id == id),
+                RoleList = _db.Roles.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Name
+                }),
+                CompanyList = _db.Companies.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString()
+                }),
+            };
+
+
+            userVM.ApplicationUser.Role = _db.Roles.FirstOrDefault(u => u.Id == roleId).Name;
+
+            return View(userVM);
+        }
+
+        [HttpPost]
+        public IActionResult RoleManagement(UserVM user)
+        {
+            string roleId = _db.UserRoles.FirstOrDefault(u => u.UserId == user.ApplicationUser.Id).RoleId;
+            string oldRole = _db.Roles.FirstOrDefault(u => u.Id == roleId).Name;
+
+            if(!(user.ApplicationUser.Role == oldRole))
+            {
+                ApplicationUser applicationUser = _db.ApplicationUsers.FirstOrDefault(u => u.Id == user.ApplicationUser.Id);
+                if(user.ApplicationUser.Role == StaticDetails.Role_Company)
+                {
+                    applicationUser.CompanyId = user.ApplicationUser.CompanyId;
+                }
+                if(oldRole == StaticDetails.Role_Company)
+                {
+                    applicationUser.CompanyId = null;
+                }
+                _db.SaveChanges();
+
+                _userManager.RemoveFromRoleAsync(applicationUser, oldRole).GetAwaiter().GetResult();
+                _userManager.AddToRoleAsync(applicationUser, user.ApplicationUser.Role).GetAwaiter().GetResult();
+
+
+            }
+          
+
+            return RedirectToAction("Index");
+        }
+
+
 
         #endregion
     }
